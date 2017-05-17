@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Web Worker Fibonacci series example</title>
+        <style>   
+            img{
+                visibility: hidden;
+                margin-top:3px
+            }
+        </style>
+
+    </head>
+
+    <body>
+        <div>
+            <h1>Generate Fibonacci Series</h1>
+            <input type="number" id="series-length" placeholder="How far do you want to go?">
+            <button OnClick="Fibonacci()">Start</button>
+            <img src="load.gif" id="load-img" alt="Working in progress..."/>
+        </div>
+        <ol id="log">
+        </ol>
+
+
+
+        <script>
+            function Fibonacci() {
+                document.getElementById("load-img").style.visibility = "visible";
+                document.getElementById("log").innerHTML = "";
+                var limit = document.getElementById("series-length").value;
+                var worker = new Worker("fib-worker.js");
+                worker.onmessage = messageHandler;
+                worker.onerror = errorHandler;
+                worker.postMessage(limit);
+            }
+
+            function messageHandler(e) {
+                var results = e.data;
+                for (var result of results) {
+                    log(result);
+                }
+                document.getElementById("load-img").style.visibility = "hidden";
+            }
+
+            function errorHandler(e) {
+                log(e.message);
+            }
+
+            function log(msg) {
+                var node = document.createElement("li");
+                var textnode = document.createTextNode(msg);
+                node.appendChild(textnode);
+                document.getElementById("log").appendChild(node);
+            }
+        </script>
+    </body>
+
+</html>
